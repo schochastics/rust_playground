@@ -4,11 +4,10 @@ use std::fs::File;
 
 use crate::graph::Graph;
 
-pub fn read_edgelist_from_csv(file_path: &str) -> Result<Graph, Box<dyn Error>> {
+pub fn read_edgelist(file_path: &str) -> Result<Graph, Box<dyn Error>> {
     let mut reader = Reader::from_reader(File::open(file_path)?);
-    let mut edgelist = Vec::new();
+    let mut edgelist: Vec<(usize, usize)> = Vec::new();
     let mut max_node_index = 0;
-
     for result in reader.records() {
         let record = result?;
         let src: usize = record[0].parse()?;

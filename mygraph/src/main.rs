@@ -126,17 +126,19 @@ impl Graph {
 }
 
 fn main() {
-    let mut graph = Graph::new(5);
+    // let mut graph = Graph::new(5);
 
-    graph.add_edge(0, 1);
-    graph.add_edge(0, 4);
-    graph.add_edge(1, 2);
-    graph.add_edge(1, 3);
-    graph.add_edge(1, 4);
-    graph.add_edge(2, 3);
-    graph.add_edge(3, 4);
+    // graph.add_edge(0, 1);
+    // graph.add_edge(0, 4);
+    // graph.add_edge(1, 2);
+    // graph.add_edge(1, 3);
+    // graph.add_edge(1, 4);
+    // graph.add_edge(2, 3);
+    // graph.add_edge(3, 4);
 
     // Calculate and print degrees
+    let graph = utils::read_edgelist("examples/gnp100.el").expect("error");
+
     let degrees = graph.degree();
     for (node, degree) in degrees.iter().enumerate() {
         println!("Node {}: Degree {}", node, degree);
