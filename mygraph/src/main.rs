@@ -1,9 +1,7 @@
+mod graph;
+mod utils;
+use crate::graph::Graph;
 use std::collections::{HashSet, VecDeque};
-
-struct Graph {
-    adj_list: Vec<Vec<usize>>,
-    vertices: usize,
-}
 
 fn dijkstra(graph: &Graph, src: usize) -> Vec<usize> {
     let mut distances = vec![usize::MAX; graph.vertices];
@@ -78,35 +76,6 @@ fn row_sum_inv(matrix: &Vec<Vec<usize>>) -> Vec<f64> {
                 .sum()
         })
         .collect()
-}
-
-// Constructors
-impl Graph {
-    // Initialize a new graph with a given number of vertices
-    fn new(vertices: usize) -> Self {
-        let adj_list = vec![Vec::new(); vertices];
-        Graph { adj_list, vertices }
-    }
-
-    // Add an edge between two vertices
-    fn add_edge(&mut self, src: usize, des: usize) {
-        self.adj_list[src].push(des);
-        self.adj_list[des].push(src); // Because it's an undirected graph
-    }
-
-    // Graph from an existing adjacency list
-    fn from_adj_list(adj_list: Vec<Vec<usize>>) -> Self {
-        let vertices = adj_list.len();
-        let mut graph = Graph::new(vertices);
-
-        for (src, neighbors) in adj_list.into_iter().enumerate() {
-            for dest in neighbors {
-                graph.add_edge(src, dest);
-            }
-        }
-
-        graph
-    }
 }
 
 // centrality and shortest path
