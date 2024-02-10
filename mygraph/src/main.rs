@@ -137,7 +137,7 @@ fn main() {
     // graph.add_edge(3, 4);
 
     // Calculate and print degrees
-    let graph = utils::read_edgelist("examples/gnp100.el").expect("error");
+    let graph = utils::read_edgelist("examples/gnp100.csv").expect("error");
 
     let degrees = graph.degree();
     for (node, degree) in degrees.iter().enumerate() {
