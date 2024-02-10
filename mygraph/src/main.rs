@@ -27,6 +27,40 @@ fn dijkstra(graph: &Graph, src: usize) -> Vec<usize> {
     distances
 }
 
+fn single_source_shortest_path(
+    graph: &Graph,
+    s: usize,
+) -> (Vec<usize>, Vec<Vec<usize>>, Vec<usize>, Vec<usize>) {
+    let mut distances = vec![usize::MAX; graph.adj_list.len()];
+    let mut shortest_paths = vec![0; graph.adj_list.len()];
+    let mut predecessors: Vec<Vec<usize>> = vec![Vec::new(); graph.adj_list.len()];
+
+    let mut queue = VecDeque::new();
+    let mut stack = Vec::new();
+
+    distances[s] = 0;
+    shortest_paths[s] = 1;
+    queue.push_back(s);
+
+    while let Some(v) = queue.pop_front() {
+        stack.push(v);
+        for &w in &graph.adj_list[v] {
+            // Path discovery
+            if distances[w] == usize::MAX {
+                queue.push_back(w);
+                distances[w] = distances[v] + 1;
+            }
+            // Path counting
+            if distances[w] == distances[v] + 1 {
+                shortest_paths[w] += shortest_paths[v];
+                predecessors[w].push(v);
+            }
+        }
+    }
+
+    (stack, predecessors, shortest_paths, distances)
+}
+
 fn row_sum_inv(matrix: &Vec<Vec<usize>>) -> Vec<f64> {
     matrix
         .iter()
@@ -46,6 +80,7 @@ fn row_sum_inv(matrix: &Vec<Vec<usize>>) -> Vec<f64> {
         .collect()
 }
 
+// Constructors
 impl Graph {
     // Initialize a new graph with a given number of vertices
     fn new(vertices: usize) -> Self {
@@ -59,6 +94,23 @@ impl Graph {
         self.adj_list[des].push(src); // Because it's an undirected graph
     }
 
+    // Graph from an existing adjacency list
+    fn from_adj_list(adj_list: Vec<Vec<usize>>) -> Self {
+        let vertices = adj_list.len();
+        let mut graph = Graph::new(vertices);
+
+        for (src, neighbors) in adj_list.into_iter().enumerate() {
+            for dest in neighbors {
+                graph.add_edge(src, dest);
+            }
+        }
+
+        graph
+    }
+}
+
+// centrality and shortest path
+impl Graph {
     fn degree(&self) -> Vec<usize> {
         self.adj_list
             .iter()
@@ -70,9 +122,37 @@ impl Graph {
         (0..self.vertices).map(|src| dijkstra(&self, src)).collect()
     }
 
-    fn closeness(&self) -> Vec<f64> {
+    fn closeness_centrality(&self) -> Vec<f64> {
         let d = self.distances();
         row_sum_inv(&d)
+    }
+
+    fn betweenness_centrality(&self) -> Vec<f64> {
+        let mut centrality = vec![0.0; self.adj_list.len()];
+        for s in 0..self.adj_list.len() {
+            let (mut stack, predecessors, shortest_paths, distances) =
+                single_source_shortest_path(self, s);
+
+            let mut dependency = vec![0.0; self.adj_list.len()];
+            while let Some(w) = stack.pop() {
+                for &v in &predecessors[w] {
+                    let coeff = (shortest_paths[v] as f64 / shortest_paths[w] as f64)
+                        * (1.0 + dependency[w]);
+                    dependency[v] += coeff;
+                }
+                if w != s {
+                    centrality[w] += dependency[w];
+                }
+            }
+        }
+
+        // Normalization step (optional, depending on the application)
+        // let norm = 1.0 / ((self.adj_list.len() - 1) * (self.adj_list.len() - 2)) as f64;
+        for value in centrality.iter_mut() {
+            *value *= 1.0 / 2.0;
+        }
+
+        centrality
     }
 }
 
@@ -100,7 +180,11 @@ fn main() {
         }
         println!();
     }
-
-    let cc = graph.closeness();
+    println!("Closeness");
+    let cc = graph.closeness_centrality();
     println!("{:?}", cc);
+
+    println!("Betweenness");
+    let bc = graph.betweenness_centrality();
+    println!("{:?}", bc);
 }
