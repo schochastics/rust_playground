@@ -41,4 +41,18 @@ impl Graph {
 
         graph
     }
+
+    // Convert the adjacency list to an adjacency matrix
+    pub fn to_adjacency_matrix(&self) -> Vec<Vec<i32>> {
+        let mut matrix = vec![vec![false; self.vertices]; self.vertices];
+
+        for (node, edges) in self.adj_list.iter().enumerate() {
+            for &edge in edges {
+                matrix[node][edge] = 1;
+                matrix[edge][node] = 1; // undirected
+            }
+        }
+
+        matrix
+    }
 }
