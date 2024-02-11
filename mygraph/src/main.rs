@@ -139,23 +139,21 @@ fn main() {
     // Calculate and print degrees
     let graph = utils::read_edgelist("examples/gnp100.csv").expect("error");
 
-    let degrees = graph.degree();
-    for (node, degree) in degrees.iter().enumerate() {
-        println!("Node {}: Degree {}", node, degree);
-    }
+    let dc = graph.degree();
+    // println!("{:?}", dc);
 
     let dist_mat = graph.distances();
-    for row in &dist_mat {
-        for &elem in row {
-            print!("{} ", elem);
-        }
-        println!();
-    }
+    // for row in &dist_mat {
+    //     for &elem in row {
+    //         print!("{} ", elem);
+    //     }
+    //     println!();
+    // }
     println!("Closeness");
     let cc = graph.closeness_centrality();
-    println!("{:?}", cc);
+    // println!("{:?}", cc);
 
     println!("Betweenness");
     let bc = graph.betweenness_centrality();
-    println!("{:?}", bc);
+    // println!("{:?}", bc);
 }
