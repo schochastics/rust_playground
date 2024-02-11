@@ -18,7 +18,7 @@ impl Graph {
     }
 
     // Graph from an existing adjacency list
-    pub fn from_adj_list(adj_list: Vec<Vec<usize>>) -> Self {
+    pub fn from_adjlist(adj_list: Vec<Vec<usize>>) -> Self {
         let vertices = adj_list.len();
         let mut graph = Graph::new(vertices);
 
@@ -44,7 +44,7 @@ impl Graph {
 
     // Convert the adjacency list to an adjacency matrix
     pub fn to_adjacency_matrix(&self) -> Vec<Vec<i32>> {
-        let mut matrix = vec![vec![false; self.vertices]; self.vertices];
+        let mut matrix = vec![vec![0; self.vertices]; self.vertices];
 
         for (node, edges) in self.adj_list.iter().enumerate() {
             for &edge in edges {
