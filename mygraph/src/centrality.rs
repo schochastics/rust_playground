@@ -9,9 +9,9 @@ fn single_source_shortest_path(
     graph: &Graph,
     s: usize,
 ) -> (Vec<usize>, Vec<Vec<usize>>, Vec<usize>, Vec<usize>) {
-    let mut distances = vec![usize::MAX; graph.adj_list.len()];
-    let mut shortest_paths = vec![0; graph.adj_list.len()];
-    let mut predecessors: Vec<Vec<usize>> = vec![Vec::new(); graph.adj_list.len()];
+    let mut distances = vec![usize::MAX; graph.vertices];
+    let mut shortest_paths = vec![0; graph.vertices];
+    let mut predecessors: Vec<Vec<usize>> = vec![Vec::new(); graph.vertices];
 
     let mut queue = VecDeque::new();
     let mut stack = Vec::new();
@@ -40,9 +40,9 @@ fn single_source_shortest_path(
 }
 
 fn distance_matrix(graph: &Graph) -> Vec<Vec<usize>> {
-    let mut matrix = vec![vec![usize::MAX; graph.adj_list.len()]; graph.adj_list.len()];
+    let mut matrix = vec![vec![usize::MAX; graph.vertices]; graph.vertices];
 
-    for s in 0..graph.adj_list.len() {
+    for s in 0..graph.vertices {
         let (_, _, _, distances) = single_source_shortest_path(graph, s);
         matrix[s] = distances;
     }
@@ -50,27 +50,8 @@ fn distance_matrix(graph: &Graph) -> Vec<Vec<usize>> {
     matrix
 }
 
-fn row_sum_inv(matrix: &Vec<Vec<usize>>) -> Vec<f64> {
-    matrix
-        .iter()
-        .enumerate()
-        .map(|(i, row)| {
-            row.iter()
-                .enumerate()
-                .filter_map(|(j, &value)| {
-                    if i != j && value != 0 {
-                        Some(1.0 / value as f64)
-                    } else {
-                        None
-                    }
-                })
-                .sum()
-        })
-        .collect()
-}
-
 fn bfs_shortest_paths(graph: &Graph, start: usize) -> Vec<usize> {
-    let mut distances = vec![usize::MAX; graph.adj_list.len()];
+    let mut distances = vec![usize::MAX; graph.vertices];
     let mut queue = VecDeque::new();
 
     distances[start] = 0;
@@ -120,13 +101,13 @@ impl Graph {
     }
 
     pub fn closeness_centrality(&self) -> Vec<f64> {
-        (0..self.adj_list.len())
+        (0..self.vertices)
             .map(|node| {
                 let distances = bfs_shortest_paths(self, node);
                 let total_distance: usize = distances.iter().filter(|&&d| d != usize::MAX).sum();
 
                 if total_distance > 0 {
-                    (self.adj_list.len() - 1) as f64 / total_distance as f64
+                    (self.vertices - 1) as f64 / total_distance as f64
                 } else {
                     0.0
                 }
@@ -135,12 +116,12 @@ impl Graph {
     }
 
     pub fn betweenness_centrality(&self) -> Vec<f64> {
-        let mut centrality = vec![0.0; self.adj_list.len()];
-        for s in 0..self.adj_list.len() {
+        let mut centrality = vec![0.0; self.vertices];
+        for s in 0..self.vertices {
             let (mut stack, predecessors, shortest_paths, distances) =
                 single_source_shortest_path(self, s);
 
-            let mut dependency = vec![0.0; self.adj_list.len()];
+            let mut dependency = vec![0.0; self.vertices];
             while let Some(w) = stack.pop() {
                 for &v in &predecessors[w] {
                     let coeff = (shortest_paths[v] as f64 / shortest_paths[w] as f64)
@@ -154,7 +135,7 @@ impl Graph {
         }
 
         // Normalization step (optional, depending on the application)
-        // let norm = 1.0 / ((self.adj_list.len() - 1) * (self.adj_list.len() - 2)) as f64;
+        // let norm = 1.0 / ((self.vertices - 1) * (self.vertices - 2)) as f64;
         for value in centrality.iter_mut() {
             *value *= 1.0 / 2.0;
         }
