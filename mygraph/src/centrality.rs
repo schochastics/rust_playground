@@ -5,6 +5,10 @@ use na::DVector;
 use na_sparse::csr::CsrMatrix;
 use std::collections::VecDeque;
 
+extern crate rayon;
+use rayon::prelude::*;
+use std::sync::Mutex;
+
 fn single_source_shortest_path(
     graph: &Graph,
     s: usize,
@@ -102,11 +106,13 @@ impl Graph {
 
     pub fn closeness_centrality(&self) -> Vec<f64> {
         (0..self.vertices)
+            .into_par_iter()
             .map(|node| {
                 let distances = bfs_shortest_paths(self, node);
                 let total_distance: usize = distances.iter().filter(|&&d| d != usize::MAX).sum();
 
                 if total_distance > 0 {
+                    // Note: Adjust the formula if your graph is directed or if you want to consider different normalization
                     (self.vertices - 1) as f64 / total_distance as f64
                 } else {
                     0.0
@@ -116,12 +122,15 @@ impl Graph {
     }
 
     pub fn betweenness_centrality(&self) -> Vec<f64> {
-        let mut centrality = vec![0.0; self.vertices];
-        for s in 0..self.vertices {
-            let (mut stack, predecessors, shortest_paths, distances) =
+        let vertices = self.vertices;
+        let centrality_global = Mutex::new(vec![0.0; vertices]);
+
+        (0..vertices).into_par_iter().for_each(|s| {
+            let (mut stack, predecessors, shortest_paths, _distances) =
                 single_source_shortest_path(self, s);
 
-            let mut dependency = vec![0.0; self.vertices];
+            let mut dependency = vec![0.0; vertices];
+            let mut centrality_local = vec![0.0; vertices];
             while let Some(w) = stack.pop() {
                 for &v in &predecessors[w] {
                     let coeff = (shortest_paths[v] as f64 / shortest_paths[w] as f64)
@@ -129,13 +138,18 @@ impl Graph {
                     dependency[v] += coeff;
                 }
                 if w != s {
-                    centrality[w] += dependency[w];
+                    centrality_local[w] += dependency[w];
                 }
             }
-        }
 
-        // Normalization step (optional, depending on the application)
-        // let norm = 1.0 / ((self.vertices - 1) * (self.vertices - 2)) as f64;
+            let mut centrality = centrality_global.lock().unwrap();
+            for i in 0..vertices {
+                centrality[i] += centrality_local[i];
+            }
+        });
+
+        // Normalization step
+        let mut centrality = centrality_global.into_inner().unwrap();
         for value in centrality.iter_mut() {
             *value *= 1.0 / 2.0;
         }

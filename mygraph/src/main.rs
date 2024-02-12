@@ -22,6 +22,8 @@ fn main() {
     // graph.add_edge(3, 4);
 
     let graph = utils::read_edgelist("examples/gnp1000.csv").expect("error");
+    println!("to sparse Matrix");
+    let adj_mat = time(|| graph.to_adjacency_matrix_sparse());
     // centrality
     println!("Degree");
     let dc = time(|| graph.degree());
