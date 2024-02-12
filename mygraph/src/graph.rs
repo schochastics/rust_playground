@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 extern crate nalgebra_sparse as na_sparse;
-use na_sparse::csr::CsrMatrix;
+use na_sparse::{coo::CooMatrix, csr::CsrMatrix};
 
 pub struct Graph {
     pub adj_list: Vec<Vec<usize>>,
@@ -61,30 +61,14 @@ impl Graph {
     }
 
     pub fn to_adjacency_matrix_sparse(&self) -> CsrMatrix<f64> {
-        let mut row_indices: Vec<usize> = Vec::new();
-        let mut col_indices: Vec<usize> = Vec::new();
-        let mut values: Vec<f64> = Vec::new();
-
+        let mut coo = CooMatrix::new(self.vertices, self.vertices);
         for (node, edges) in self.adj_list.iter().enumerate() {
             for &edge in edges {
-                row_indices.push(node);
-                col_indices.push(edge);
-                values.push(1.0); // Edge weight, assuming 1.0 for unweighted graphs
-                                  // For undirected graphs, add the symmetric entry as well
-                row_indices.push(edge);
-                col_indices.push(node);
-                values.push(1.0);
+                coo.push(node, edge, 1.0);
+                coo.push(edge, node, 1.0);
             }
         }
-
-        // Create a CSR matrix
-        CsrMatrix::try_from_csr_data(
-            self.vertices,
-            self.vertices,
-            row_indices,
-            col_indices,
-            values,
-        )
-        .expect("Failed to create CSR matrix")
+        let csr = CsrMatrix::from(&coo);
+        csr
     }
 }
