@@ -69,6 +69,25 @@ fn row_sum_inv(matrix: &Vec<Vec<usize>>) -> Vec<f64> {
         .collect()
 }
 
+fn bfs_shortest_paths(graph: &Graph, start: usize) -> Vec<usize> {
+    let mut distances = vec![usize::MAX; graph.adj_list.len()];
+    let mut queue = VecDeque::new();
+
+    distances[start] = 0;
+    queue.push_back(start);
+
+    while let Some(node) = queue.pop_front() {
+        for &neighbor in &graph.adj_list[node] {
+            if distances[neighbor] == usize::MAX {
+                distances[neighbor] = distances[node] + 1;
+                queue.push_back(neighbor);
+            }
+        }
+    }
+
+    distances
+}
+
 fn power_iteration(matrix: &CsrMatrix<f64>, max_iters: usize, tolerance: f64) -> DVector<f64> {
     let n = matrix.nrows();
     let mut b_k = DVector::from_element(n, 1.0); // Initial guess
@@ -101,8 +120,18 @@ impl Graph {
     }
 
     pub fn closeness_centrality(&self) -> Vec<f64> {
-        let d = distance_matrix(self);
-        row_sum_inv(&d)
+        (0..self.adj_list.len())
+            .map(|node| {
+                let distances = bfs_shortest_paths(self, node);
+                let total_distance: usize = distances.iter().filter(|&&d| d != usize::MAX).sum();
+
+                if total_distance > 0 {
+                    (self.adj_list.len() - 1) as f64 / total_distance as f64
+                } else {
+                    0.0
+                }
+            })
+            .collect()
     }
 
     pub fn betweenness_centrality(&self) -> Vec<f64> {
