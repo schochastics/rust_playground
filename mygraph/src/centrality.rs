@@ -39,6 +39,17 @@ fn single_source_shortest_path(
     (stack, predecessors, shortest_paths, distances)
 }
 
+fn distance_matrix(graph: &Graph) -> Vec<Vec<usize>> {
+    let mut matrix = vec![vec![usize::MAX; graph.adj_list.len()]; graph.adj_list.len()];
+
+    for s in 0..graph.adj_list.len() {
+        let (_, _, _, distances) = single_source_shortest_path(graph, s);
+        matrix[s] = distances;
+    }
+
+    matrix
+}
+
 fn row_sum_inv(matrix: &Vec<Vec<usize>>) -> Vec<f64> {
     matrix
         .iter()
@@ -90,7 +101,7 @@ impl Graph {
     }
 
     pub fn closeness_centrality(&self) -> Vec<f64> {
-        let d = self.distances();
+        let d = distance_matrix(self);
         row_sum_inv(&d)
     }
 
