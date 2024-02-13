@@ -1,9 +1,7 @@
 mod centrality;
 mod graph;
 mod utils;
-use crate::graph::Graph;
 use log::info;
-use std::collections::{HashSet, VecDeque};
 
 //testing area
 //--------------------------------------------------------------------
@@ -23,21 +21,21 @@ fn main() {
 
     let graph = utils::read_edgelist("examples/gnp1000.csv").expect("error");
     println!("to sparse Matrix");
-    let adj_mat = time(|| graph.to_adjacency_matrix_sparse());
+    time(|| graph.to_adjacency_matrix_sparse());
     // centrality
     println!("Degree");
-    let dc = time(|| graph.degree());
+    time(|| graph.degree());
     println!("Closeness");
-    let cc = time(|| graph.closeness_centrality());
+    time(|| graph.closeness_centrality());
     println!("Betweenness");
-    let bc = time(|| graph.betweenness_centrality());
+    time(|| graph.betweenness_centrality());
     println!("Eigenvector");
-    let ec = time(|| graph.eigenvector_centrality());
+    time(|| graph.eigenvector_centrality());
 }
 
 fn time<T, F: FnOnce() -> T>(f: F) -> T {
     let start = std::time::Instant::now();
     let res = f();
-    info!("Execution took {:?}", start.elapsed());
+    println!("Execution took {:?}", start.elapsed());
     res
 }
