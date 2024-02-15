@@ -1,10 +1,6 @@
 mod centrality;
 mod graph;
 mod utils;
-use log::info;
-
-//testing area
-//--------------------------------------------------------------------
 
 fn main() {
     env_logger::init();
