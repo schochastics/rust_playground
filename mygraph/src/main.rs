@@ -1,5 +1,6 @@
 mod centrality;
 mod graph;
+mod structural;
 mod utils;
 
 fn main() {
@@ -27,6 +28,8 @@ fn main() {
     time(|| graph.betweenness_centrality());
     println!("Eigenvector");
     time(|| graph.eigenvector_centrality());
+    println!("Triangles");
+    time(|| graph.count_triangles());
 }
 
 fn time<T, F: FnOnce() -> T>(f: F) -> T {
