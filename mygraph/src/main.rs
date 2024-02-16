@@ -2,10 +2,13 @@ mod centrality;
 mod graph;
 mod structural;
 mod utils;
+use std::env;
 
 fn main() {
     env_logger::init();
-
+    let args: Vec<String> = env::args().collect();
+    // dbg!(args);
+    let path = &args[1];
     // let mut graph = Graph::new(5);
 
     // graph.add_edge(0, 1);
@@ -16,7 +19,7 @@ fn main() {
     // graph.add_edge(2, 3);
     // graph.add_edge(3, 4);
 
-    let graph = utils::read_edgelist("examples/gnp1000.csv").expect("error");
+    let graph = utils::read_edgelist(path).expect("error");
     println!("to sparse Matrix");
     time(|| graph.to_adjacency_matrix_sparse());
     // centrality
