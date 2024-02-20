@@ -32,14 +32,14 @@ use std::env;
 
 fn main() {
     // Directly using the phone number as input
-    let input_number = "+49176554554";
+    let input_number = "+491765545541";
 
     // Assuming the country code might not always be provided, we handle it as an Option
     let country = None; // Example: for Germany, you might use Some(49)
 
     let number = phonenumber::parse(country, input_number).unwrap();
     let valid = phonenumber::is_valid(&number);
-
+    println!("{}", valid);
     if valid {
         println!("\x1b[32m{:#?}\x1b[0m", number);
         println!();
