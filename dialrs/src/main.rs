@@ -38,28 +38,30 @@ fn main() {
     let country = None; // Example: for Germany, you might use Some(49)
 
     let number = phonenumber::parse(country, input_number).unwrap();
+    println!("{:?}", number);
     let valid = phonenumber::is_valid(&number);
     println!("{}", valid);
-    if valid {
-        println!("\x1b[32m{:#?}\x1b[0m", number);
-        println!();
-        println!(
-            "International: {}",
-            number.format().mode(phonenumber::Mode::International)
-        );
-        println!(
-            "     National: {}",
-            number.format().mode(phonenumber::Mode::National)
-        );
-        println!(
-            "      RFC3966: {}",
-            number.format().mode(phonenumber::Mode::Rfc3966)
-        );
-        println!(
-            "        E.164: {}",
-            number.format().mode(phonenumber::Mode::E164)
-        );
-    } else {
-        println!("\x1b[31m{:#?}\x1b[0m", number);
-    }
+    println!("{:?}", number.code());
+    // if valid {
+    //     println!("\x1b[32m{:#?}\x1b[0m", number);
+    //     println!();
+    //     println!(
+    //         "International: {}",
+    //         number.format().mode(phonenumber::Mode::International)
+    //     );
+    //     println!(
+    //         "     National: {}",
+    //         number.format().mode(phonenumber::Mode::National)
+    //     );
+    //     println!(
+    //         "      RFC3966: {}",
+    //         number.format().mode(phonenumber::Mode::Rfc3966)
+    //     );
+    //     println!(
+    //         "        E.164: {}",
+    //         number.format().mode(phonenumber::Mode::E164)
+    //     );
+    // } else {
+    //     println!("\x1b[31m{:#?}\x1b[0m", number);
+    // }
 }
